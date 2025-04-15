@@ -1,0 +1,47 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_IMAGE_PREFIX: myusername/project
+      REGISTRY: docker.io
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Log in to DockerHub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build and Push Frontend
+        working-directory: ./frontend
+        run: |
+          docker build -t $REGISTRY/$DOCKER_IMAGE_PREFIX-frontend:latest .
+          docker push $REGISTRY/$DOCKER_IMAGE_PREFIX-frontend:latest
+      - name: Build and Push Backend
+        working-directory: ./backend
+        run: |
+          docker build -t $REGISTRY/$DOCKER_IMAGE_PREFIX-backend:latest .
+          docker push $REGISTRY/$DOCKER_IMAGE_PREFIX-backend:latest
+      - name: Build and Push ML Service
+        working-directory: ./ml-service
+        run: |
+          docker build -t $REGISTRY/$DOCKER_IMAGE_PREFIX-ml-service:latest .
+          docker push $REGISTRY/$DOCKER_IMAGE_PREFIX-ml-service:latest
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Deploy Services
+        run: |
+          docker-compose pull
+          docker-compose up -d
