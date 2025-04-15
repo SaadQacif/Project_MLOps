@@ -1,0 +1,9 @@
+# Exclude local binaries and cache
+bin/
+*.exe
+*.out
+*.swp
+*.log
+
+# Exclude Air-related files
+.air/

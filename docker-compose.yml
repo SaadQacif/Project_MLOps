@@ -1,0 +1,32 @@
+version: "3.8"
+services:
+  frontend:
+    build:
+      context: ./site/frontend
+    ports:
+      - "8080:80"
+    volumes:
+      - ./site/frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=production
+
+  backend:
+    build:
+      context: ./site/backend/server
+    volumes:
+      - ./site/backend/server:/app
+      - /app/tmp
+    ports:
+      - "3000:8080"
+    environment:
+      - APP_ENV=development
+    command: air -c .air.toml
+
+  ml_service:
+    build:
+      context: ./src
+    ports:
+      - "5000:5000"
+    environment:
+      - PYTHONUNBUFFERED=1

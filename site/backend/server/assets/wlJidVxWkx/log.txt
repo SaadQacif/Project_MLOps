@@ -1,0 +1,1 @@
+image: Capture d'écran 2024-12-24 201923.png. prediction: Late Blight
